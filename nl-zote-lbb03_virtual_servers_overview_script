@@ -1,0 +1,86 @@
+#!/bin/bash
+# set the date format for the end file
+# filter out of the snmp walk the server names entries
+snmpwalk -v2c -On -c aG00dB33r -Cp 15.143.208.182 1.3.6.1.4.1.3375.2.2.10.1.2.1.1 | head -n -1 > /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmVirtualServName
+snmpwalk -v2c -On -c aG00dB33r -Cp 15.143.208.182 1.3.6.1.4.1.3375.2.2.10.1.2.1.19 | head -n -1 > /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmVirtualServDefaultPool
+snmpwalk -v2c -On -c aG00dB33r -Cp 15.143.208.182 1.3.6.1.4.1.3375.2.2.5.3.2.1.1 | head -n -1 > /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmPoolMemberPoolName
+snmpwalk -v2c -On -c aG00dB33r -Cp 15.143.208.182 1.3.6.1.4.1.3375.2.2.5.3.2.1.19 | head -n -1 > /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmPoolMemberNodeName
+snmpwalk -v2c -On -c aG00dB33r -Cp 15.143.208.182 1.3.6.1.4.1.3375.2.2.5.3.2.1.10 | head -n -1 > /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmPoolMemberMonitorState
+# count the servers
+NUMBER_OF_SERVERS=$(wc -l < /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmVirtualServName)
+echo "Rank, Server Name,                                Default Pool,                               Pool Member\(s\)" > /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_dashboard
+echo "Rank,Server Name,Default Pool,Pool Member\(s\), Status" > /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_dashboard.txt
+# print the server names
+# sed $COUNTER'q;d - this one prints line number - COUNTER
+# awk '{print substr($4,10)}' - this one prints the 4th elemenent mines 10 characters that correcpond to /common/etc...
+# sed 's/.$//' this one cuts the trailing # symbol
+# cut -f1 -d" " this one cuts everything after the space which leaves just the OID in numerical format
+# for server maxx conn id replace the SNMP OID ending with .1 into .10 the rest of the string stays the same, curr conn replace 1 with 12, etc...
+# see http://www.oidview.com/mibs/3375/F5-BIGIP-LOCAL-MIB.html
+COUNTER=1
+         while [ $COUNTER -le $NUMBER_OF_SERVERS ]; do
+SERVER_NAME=$(sed $COUNTER'q;d' /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmVirtualServName | awk '{print substr($4,10)}' | sed 's/.$//' | sed 's/Common\///')
+SERVER_NAME_COMMON_STRING=$(sed $COUNTER'q;d' /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmVirtualServName | awk '{print $1}' | sed 's/\.1\.3\.6\.1\.4\.1\.3375\.2\.2\.10\.1\.2\.1\.1\.//')
+SERVER_POOL_NAME=$(grep $SERVER_NAME_COMMON_STRING /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmVirtualServDefaultPool | awk ' {print $4}' )
+NO_POOL_ASSIGNED=$(grep $SERVER_NAME_COMMON_STRING /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmVirtualServDefaultPool | awk ' {print $3}' )
+HAS_APP_PROFILE=$(echo $SERVER_NAME | grep app | wc -l)
+	if [ "$HAS_APP_PROFILE" == 1 ]; then
+	SERVER_NAME=$(sed $COUNTER'q;d' /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmVirtualServName | awk '{print substr($4,10)}' | sed 's/.$//' | sed 's/Common\///' | sed 's/^.*\///')
+        SERVER_POOL_NAME=$(grep $SERVER_NAME_COMMON_STRING /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmVirtualServDefaultPool | awk ' {print $4}' | sed 's/Common\///' | sed 's/^.*\///')
+	fi
+POOL_MEMBER_COMMON_STRING=$(cat /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmPoolMemberPoolName | grep "$SERVER_POOL_NAME" | awk '{print $1}' | sed 's/\.1\.3\.6\.1\.4\.1\.3375\.2\.2\.5\.3\.2\.1\.1\.//')
+		if [ "$NO_POOL_ASSIGNED" == '""' ]; then
+		    echo "$COUNTER,     $SERVER_NAME, NONE"  >> /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_dashboard
+		    echo "$COUNTER,$SERVER_NAME,NONE" >> /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_dashboard.txt
+		fi
+		if [ "$NO_POOL_ASSIGNED" != '""' ]; then
+		POOL_NAME=$(echo "$SERVER_POOL_NAME" | sed 's/.$//' | sed 's/\"\/Common\///' )
+		echo "$COUNTER,     $SERVER_NAME, $POOL_NAME" >> /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_dashboard
+                echo "$COUNTER,$SERVER_NAME,$POOL_NAME" >> /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_dashboard.txt
+                NUMBER_OF_NODES=$(grep "$POOL_MEMBER_COMMON_STRING"  /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmPoolMemberNodeName | wc -l)
+                grep "$POOL_MEMBER_COMMON_STRING"  /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmPoolMemberNodeName > /home/erm_users/hpbcadom/HEINEKEN/tmp/nodes
+                COUNTER2=1
+                      while [ $COUNTER2 -le $NUMBER_OF_NODES ]; do
+                         pool_member_ip=$(sed $COUNTER2'q;D' /home/erm_users/hpbcadom/HEINEKEN/tmp/nodes | awk '{print $4}' | sed 's/.$//' )
+			 pool_member_status_oid=$(sed $COUNTER2'q;D' /home/erm_users/hpbcadom/HEINEKEN/tmp/nodes | awk '{print $1}' | sed 's/\.1\.3\.6\.1\.4\.1\.3375\.2\.2\.5\.3\.2\.1\.19/\.1\.3\.6\.1\.4\.1\.3375\.2\.2\.5\.3\.2\.1\.10/')
+echo $pool_member_status_oid > /home/erm_users/hpbcadom/HEINEKEN/tmp/oid.tmp
+			 pool_member_status=$(cat /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_ltmPoolMemberMonitorState | grep "$pool_member_status_oid" | awk '{print $4}')
+tmp_status=$(cat /home/erm_users/hpbcadom/HEINEKEN/tmp/nodes_status | grep "$pool_member_status_oid")
+echo "status code $tmp_status"
+			case "$pool_member_status" in 
+			0)
+				node_status="unchecked"
+				;;
+                        1)
+                                node_status="checking"
+				;;
+                        2)
+                                node_status="inband"
+				;;
+                        3)
+                                node_status="force-up"
+				;;
+                       	4)      node_status="up" 
+                                ;;
+			19) 
+				node_status="down"
+				 ;;
+			20)	node_status="forced-down" 
+				;;
+			22)     node_status="irule-down" 
+                                ;;
+			23)     node_status="inband-down" 
+                                ;;
+			24)     node_status="down-manual-resume" 
+                                ;;
+			25)     node_status="disabled" 
+                                ;;
+			esac
+			 echo ",,,                                                                                         $POOL_MEMBER_IP,$node_status" >> /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_dashboard
+                         echo ",,,$pool_member_ip,$node_status" >> /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_dashboard.txt
+echo "$pool_member_ip,$node_status"
+			 let COUNTER2=COUNTER2+1
+                      done
+		fi
+        let COUNTER=COUNTER+1 
+        done
