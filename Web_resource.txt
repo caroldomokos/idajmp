@@ -1,0 +1,231 @@
+http://ccie-or-null.net/2014/01/06/poll-individual-virtual-server-statistics-on-f5-ltms-using-snmp/
+http://stackoverflow.com/questions/6022384/bash-tool-to-get-nth-line-from-a-file
+	sed 'NUMq;d' file
+http://www.theunixschool.com/2014/08/sed-examples-remove-delete-chars-from-line-file.html
+		5. To remove first character only if it is a specific character:
+		$ sed 's/^F//' file
+				Linux
+				Solaris
+				Ubuntu
+				edora
+				RedHat
+
+		  This removes the 1st character only if it is 'F'. - See more at: http://www.theunixschool.com/2014/08/sed-examples-remove-delete-chars-from-line-file.html#sthash.S3enr7tB.dpuf
+		6. To remove last character only if it is a specific character:
+		
+		$ sed 's/x$//' file
+		Linu
+		Solaris
+		Ubuntu
+		Fedora
+		RedHat
+		
+		   This removed the last character only if it s 'x'. - See more at: http://www.theunixschool.com/2014/08/sed-examples-remove-delete-chars-from-line-file.html#sthash.S3enr7tB.dpuf
+
+https://devcentral.f5.com/questions/bigip-snmp-pool-members-info
+			
+			ltmPoolMemberMonitorState OBJECT-TYPE 
+			    SYNTAX INTEGER {
+			        unchecked(0),
+			        checking(1),
+			        inband(2),
+			        forced-up(3),
+			        up(4),
+			        down(19),
+			        forced-down(20),
+			        irule-down(22),
+			        inband-down(23),
+			        down-manual-resume(24),
+			        disabled(25)
+			    }
+
+http://www.shellhacks.com/en/CASE-Statement-in-Bash-Example
+		#!/bin/bash
+		printf 'Which Linux distribution do you know? '
+		read DISTR
+		
+		case $DISTR in
+		     ubuntu)
+		          echo "I know it! It is an operating system based on Debian."
+		          ;;
+		     centos|rhel)
+		          echo "Hey! It is my favorite Server OS!"
+		          ;;
+		     windows)
+		          echo "Very funny..."
+		          ;; 
+		     *)
+		          echo "Hmm, seems i've never used it."
+		          ;;
+		esac
+
+http://www.cyberciti.biz/faq/bash-loop-over-file/
+			FILES="file1
+			/path/to/file2
+			/etc/resolv.conf"
+			for f in $FILES
+			do
+				echo "Processing $f"
+			done
+http://www.unix.com/unix-for-dummies-questions-and-answers/98893-how-delete-all-character-before-certain-word.html
+		$ echo "123 456 789 abc 111 222 333" | sed 's/^.*abc/abc/'
+		abc 111 222 333
+		$
+http://stackoverflow.com/questions/4881930/bash-remove-the-last-line-from-a-file
+			Using GNU sed:
+			
+			sed -i '$ d' foo.txt
+			
+			The -i option does not exist in older versions, so you have to use it as a filter with a temporary file:
+			
+			cp foo.txt foo.txt.tmp
+			sed '$ d' foo.txt.tmp > foo.txt
+			rm -f foo.txt.tmp
+			
+			Of course, in that case you could also use head -n -1 instead of sed.
+
+http://www.cyberciti.biz/faq/sed-display-text/
+			To output all the text from file called test.xt' between 'FOO' and 'BAR', type the following command at a shell prompt. The -n option suppress automatic printing of pattern space:
+			$ sed -n '/WORD1/,/WORD2/p' /path/to/file
+			$ sed -n '/FOO/,/BAR/p' test.txt
+			
+			You can easily find out all virtual host entries from httpd.conf, type
+			# sed -n '/<VirtualHost*/,/<\/VirtualHost>/p' /etc/httpd/conf/httpd.conf
+http://stackoverflow.com/questions/7494115/expect-script-does-not-work-under-crontab
+ 15 down vote
+	
+
+I had the same issue, except that my script was ending with
+
+interact
+
+Finally I got it working by replacing it with these two lines:
+
+expect eof
+exit
+
+http://stackoverflow.com/questions/9591744/add-to-the-end-of-a-line-containing-a-pattern-with-sed-or-awk
+
+
+				This works for me
+				
+				sed '/^all:/ s/$/ anotherthing/' file
+				
+				The first part is a pattern to find and the second part is an ordinary sed's substitution using $ for the end of a line.
+				
+				If you want to change the file during the process, use -i option
+				
+				sed -i '/^all:/ s/$/ anotherthing/' file
+				
+				Or you can redirect it to another file
+				
+				sed '/^all:/ s/$/ anotherthing/' file > output
+				
+
+http://stackoverflow.com/questions/4168371/how-can-i-remove-all-text-after-a-character-in-bash		
+		An example might have been useful, but if I understood you correctly, this would work:
+		
+		cut -f1 -d":"
+		
+		This will convert "hello: world" into "hello".
+
+http://askubuntu.com/questions/4830/easiest-way-to-copy-ssh-keys-to-another-machine
+ like the answer from Marcel. I did not know this command. I've always been using what I had found on a SUN web site:
+
+cat ~/.ssh/id_rsa.pub | ssh <user>@<hostname> 'cat >> .ssh/authorized_keys && echo "Key copied"'
+
+I thought to post it here still, because it is a good illustration of what can be achieved in shell code with the power of ssh. But using the ssh-copy-id is definitively a safer way to do it properly!
+
+Note that if the folder .ssh does not already exist, the above command will fail. In addition, it might be better when creating the file to set a minimum possible permission (basically read-write for owner only). Here is a more advanced command:
+cat ~/.ssh/id_rsa.pub | ssh <user>@<hostname> 'umask 0077; mkdir -p .ssh; cat >> .ssh/authorized_keys && echo "Key copied"'
+
+http://www.unix.com/aix/177948-how-send-attachment-using-sendmail-command-without-uuencode-command.html
+( echo "to: trail@somewhere.com"
+  echo "from: s64110@elsewhere.com"
+  echo "subject: sending file.jpg"
+  echo "mime-version: 1.0"
+  echo "content-type: multipart/related; boundary=xxxRANDOMSTRINGxxx"
+  echo
+  echo "--xxxRANDOMSTRINGxxx"
+  echo "content-type: text/plain"
+  echo
+  echo "Body of the message goes here"
+  echo "Here is file.jpg for your viewing pleasure"
+  echo
+  echo "--xxxRANDOMSTRINGxxx"
+  echo "content-type: image/gif; name=file.jpg"
+  echo "content-transfer-encoding: base64"
+  echo
+  openssl base64 < /tmp/file.jpg ) | sendmail -t -i
+
+http://stackoverflow.com/questions/7048170/running-full-commands-through-remote-ssh
+
+ 45 down vote accepted
+	
+
+Try writing your bash script locally and calling:
+
+ssh user@example.com 'bash -s' < local_script.sh
+
+https://support.f5.com/kb/en-us/solutions/public/7000/500/sol7574.html
+ sol7574: Monitoring SSL certificate expiration on the BIG-IP system (9.x - 10.x) 
+
+
+http://backreference.org/2013/05/22/send-email-with-attachments-from-script-or-command-line/
+#!/bin/bash
+
+# some variables
+# refactoring the script such that all these values are
+# passed from the outside as arguments should be easy
+
+from="sender@example.com"
+to="recipient@example.org"
+subject="Some fancy title"
+boundary="ZZ_/afg6432dfgkl.94531q"
+body="This is the body of our email"
+declare -a attachments
+attachments=( "foo.pdf" "bar.jpg" "archive.zip" )
+
+# Build headers
+{
+
+printf '%s\n' "From: $from
+To: $to
+Subject: $subject
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary=\"$boundary\"
+
+--${boundary}
+Content-Type: text/plain; charset=\"US-ASCII\"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+$body
+"
+ 
+# now loop over the attachments, guess the type
+# and produce the corresponding part, encoded base64
+for file in "${attachments[@]}"; do
+
+  [ ! -f "$file" ] && echo "Warning: attachment $file not found, skipping" >&2 && continue
+
+  mimetype=$(get_mimetype "$file") 
+ 
+  printf '%s\n' "--${boundary}
+Content-Type: $mimetype
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=\"$file\"
+"
+ 
+  base64 "$file"
+  echo
+done
+ 
+# print last boundary with closing --
+printf '%s\n' "--${boundary}--"
+ 
+} | sendmail -t -oi   # one may also use -f here to set the envelope-from
+
+
+
+cat ~/.ssh/id_rsa.pub | ssh <user>@<hostname> 'umask 0077; mkdir -p .ssh; cat >> .
