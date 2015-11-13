@@ -1,0 +1,6 @@
+#! /bin/bash
+rm -rf /home/erm_users/hpbcadom/HEINEKEN/tmp/certificates/nl-zoete-lb01/certificate_d/
+rm -rf /home/erm_users/hpbcadom/HEINEKEN/tmp/certificates/nl-zoete-lb03/certificate_d/
+rm -f /home/erm_users/hpbcadom/HEINEKEN/tmp/configs/nl-zoete-lb01/*
+rm -f /home/erm_users/hpbcadom/HEINEKEN/tmp/configs/nl-zoete-lb03/*
+rm -f /home/erm_users/hpbcadom/HEINEKEN/tmp/n*

@@ -1,0 +1,17 @@
+#!/bin/bash
+# set the date format for the end file
+month=$(date +"%B")
+now=$date
+# rename the config files
+mv /home/erm_users/hpbcadom/HEINEKEN/tmp/configs/nl-zoete-lb01/bigip.conf /home/erm_users/hpbcadom/HEINEKEN/tmp/configs/nl-zoete-lb01/nl-zoete-lb01_bigip.conf
+mv /home/erm_users/hpbcadom/HEINEKEN/tmp/configs/nl-zoete-lb03/bigip.conf /home/erm_users/hpbcadom/HEINEKEN/tmp/configs/nl-zoete-lb03/nl-zoete-lb03_bigip.conf
+echo $month
+echo "$now" | mutt -s "HEINEKEN monthly report - $month" carol.domokos@hpe.com,willem.griend@hpe.com \
+        -a /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb01_cert_expiration_dates.txt \
+																						-a /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_cert_expiration_dates.txt \
+																						-a /home/erm_users/hpbcadom/HEINEKEN/tmp/configs/nl-zoete-lb01/nl-zoete-lb01_bigip.conf \
+																						-a /home/erm_users/hpbcadom/HEINEKEN/tmp/configs/nl-zoete-lb03/nl-zoete-lb03_bigip.conf \
+																						-a /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb01_dashboard.txt \
+																						-a /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb03_dashboard.txt
+# cleanup the files to have a clean setup for next month
+/home/erm_users/hpbcadom/HEINEKEN/cleanup
