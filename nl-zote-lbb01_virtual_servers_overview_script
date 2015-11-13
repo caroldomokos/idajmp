@@ -74,7 +74,7 @@ POOL_MEMBER_COMMON_STRING=$(cat /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lb
                                 ;;
 			esac
 			 echo ",,,                                                                                         $POOL_MEMBER_IP,$node_status" >> /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb01_dashboard
-                         echo ",,,$POOL_MEMBER_IP,$node_status" >> /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb01_dashboard.txt
+                         echo ",,,$pool_member_ip,$node_status" >> /home/erm_users/hpbcadom/HEINEKEN/tmp/nl-zote-lbb01_dashboard.txt
 			 let COUNTER2=COUNTER2+1
                       done
 		fi
